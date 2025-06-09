@@ -7,9 +7,9 @@ import java.sql.Statement;
 
 public class Main {
     public static void main(String[] args) {
-        String url = "jdbc:mysql://localhost:3307/northwind";
-        String user = "root"; //
-        String password = "yearup"; //
+        String url = "jdbc:mysql://localhost:3306/northwind";
+        String user = "  "; //
+        String password = "  "; //
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
              Statement stmt = conn.createStatement();
