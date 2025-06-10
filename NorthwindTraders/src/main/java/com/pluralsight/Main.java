@@ -8,8 +8,8 @@ import java.sql.Statement;
 public class Main {
     public static void main(String[] args) {
         String url = "jdbc:mysql://localhost:3307/northwind";
-        String user = "   "; //
-        String password = "  "; //
+        String user = args[0]; //
+        String password = args[1]; //
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
              Statement stmt = conn.createStatement();
@@ -29,10 +29,10 @@ public class Main {
             ResultSet rs2 = stmt.executeQuery("SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM Products");
 
             System.out.println("\nOption 2: Rows of Information");
-            System.out.printf("%-5s %-20s %-10s %-10s%n", "Id", "Name", "Price", "Stock");
-            System.out.println("---- -------------------- ---------- ----------");
+            System.out.printf("%-15s %-35s %-12s %-15s%n", "Id", "Name", "Price", "Stock");
+            System.out.println("----      ---------------------                 -------------  --------");
             while (rs2.next()) {
-                System.out.printf("%-5d %-20s %-10.2f %-10d%n",
+                System.out.printf("%-15d %-35s %-12.2f %-15d%n",
                         rs2.getInt("ProductID"),
                         rs2.getString("ProductName"),
                         rs2.getDouble("UnitPrice"),
