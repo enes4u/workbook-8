@@ -4,11 +4,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Scanner;
+import java.util.List;
+
+
+import com.pluralsight.model.Actor;
+import com.pluralsight.model.Film;
 
 public class Main {
     public static void main(String[] args) {
         if (args.length < 3) {
-            System.err.println("Usage: java -jar SakilaMovies.jar <DB_URL> <USERNAME> <PASSWORD>");
+            System.err.println("Usage: java -jar Sakila_Movies.jar <DB_URL> <USERNAME> <PASSWORD>");
             System.exit(1);
         }
 
@@ -18,17 +23,63 @@ public class Main {
 
         // Initialize DataSource with CLI credentials
         DataSourceFactory.initializeDataSource(dbUrl, dbUser, dbPassword);
+        DataManager dataManager = new DataManager(DataSourceFactory.getDataSource());
 
         Scanner scanner = new Scanner(System.in);
+//
+//        System.out.print("Enter an actor's last name: ");
+//        String lastName = scanner.nextLine();
+//        searchActorsByLastName(lastName);
+//
+//        System.out.print("\nEnter an actor's first and last name to see their movies: ");
+//        String firstName = scanner.next();
+//        String fullLastName = scanner.next();
+//        searchMoviesByActor(firstName, fullLastName);
+//
+//        scanner.close();
+//    }
 
+        // Search for actors by last name
         System.out.print("Enter an actor's last name: ");
         String lastName = scanner.nextLine();
-        searchActorsByLastName(lastName);
+        List<Actor> actors = dataManager.searchActorsByLastName(lastName);
 
-        System.out.print("\nEnter an actor's first and last name to see their movies: ");
-        String firstName = scanner.next();
-        String fullLastName = scanner.next();
-        searchMoviesByActor(firstName, fullLastName);
+        if (actors.isEmpty()) {
+            System.out.println("No actors found with last name '" + lastName + "'.");
+        } else {
+            System.out.println("\n+----+--------------+-------------+");
+            System.out.println("| ID | First Name   | Last Name   |");
+            System.out.println("+----+--------------+-------------+");
+
+            for (Actor actor : actors) {
+                System.out.printf("| %-2d | %-12s | %-11s |\n",
+                        actor.getActorId(), actor.getFirstName(), actor.getLastName());
+            }
+
+            System.out.println("+----+--------------+-------------+");
+        }
+
+
+        // Prompt for actor ID and fetch movies
+            System.out.print("\nEnter an actor ID to view their films: ");
+            int actorId = scanner.nextInt();
+        List<Film> films = dataManager.getFilmsByActorId(actorId);
+
+        if (films.isEmpty()) {
+            System.out.println("No movies found for actor ID " + actorId + ".");
+        } else {
+            System.out.println("\n+----+----------------------------+------------+--------+");
+            System.out.println("| ID | Title                      | Release Yr | Length |");
+            System.out.println("+----+----------------------------+------------+--------+");
+
+            for (Film film : films) {
+                System.out.printf("| %-2d | %-26s | %-10d | %-6d |\n",
+                        film.getFilmId(), film.getTitle(), film.getReleaseYear(), film.getLength());
+            }
+
+            System.out.println("+----+----------------------------+------------+--------+");
+        }
+
 
         scanner.close();
     }
