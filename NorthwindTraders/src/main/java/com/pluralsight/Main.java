@@ -11,6 +11,8 @@ public class Main {
 
 
         Scanner scanner = new Scanner(System.in);
+        // Initialize DataSource with CLI credentials
+        DataSourceFactory.initializeDataSource(url, user, password);
         int choice;
 
         do {
@@ -24,13 +26,13 @@ public class Main {
 
             switch (choice) {
                 case 1:
-                    displayProducts(url, user, password);
+                    displayProducts();
                     break;
                 case 2:
-                    displayCustomers(url, user, password);
+                    displayCustomers();
                     break;
                 case 3:
-                    displayCategories(url, user, password, scanner);
+                    displayCategories(scanner);
                     break;
                 case 0:
                     System.out.println("Exiting program...");
@@ -42,8 +44,8 @@ public class Main {
 
         scanner.close();
     }
-    private static void displayProducts(String url, String user, String password) {
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+    private static void displayProducts() {
+        try (Connection conn = DataSourceFactory.getDataSource().getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM Products")) {
 //            System.out.println("Option 1: Stacked Information");
@@ -77,8 +79,8 @@ public class Main {
 
         /* try -with resources  closes resources automatically after code block*/
     }
-    private static void displayCustomers(String url, String user, String password) {
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+    private static void displayCustomers() {
+        try (Connection conn = DataSourceFactory.getDataSource().getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT ContactName, CompanyName, City, Country, Phone FROM Customers ORDER BY Country")) {
 
@@ -96,10 +98,10 @@ public class Main {
             System.err.println("Error retrieving customers: " + e.getMessage());
         }
     }
-    private static void displayCategories(String url, String user, String password, Scanner scanner) {
+    private static void displayCategories( Scanner scanner) {
         String query = "SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID";
 
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = DataSourceFactory.getDataSource().getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
@@ -115,17 +117,17 @@ public class Main {
 
             System.out.print("\nEnter a Category ID to view products: ");
             int categoryId = scanner.nextInt();
-            displayProductsByCategory(url, user, password, categoryId);
+            displayProductsByCategory(categoryId);
 
         } catch (SQLException e) {
             System.err.println("Error retrieving categories: " + e.getMessage());
         }
     }
 
-    private static void displayProductsByCategory(String url, String user, String password, int categoryId) {
+    private static void displayProductsByCategory( int categoryId) {
         String query = "SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM Products WHERE CategoryID = ?";
 
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = DataSourceFactory.getDataSource().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setInt(1, categoryId);
